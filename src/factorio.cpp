@@ -22,7 +22,7 @@ bool Factorio::onEvent(const Message::Events::MessageConstruct& e) {
 	return false;
 }
 
-void onFileEvent(const std::string& path, const filewatch::Event change_type) {
+void Factorio::onFileEvent(const std::string& path, const filewatch::Event change_type) {
 	std::cout << "file even " << filewatch::event_to_string(change_type) << " on '" << path << "'\n";
 }
 
