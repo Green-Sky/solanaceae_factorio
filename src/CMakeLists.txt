@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.9...3.24 FATAL_ERROR)
 project(solanaceae)
 
 add_library(solanaceae_factorio
+	./log_parse.hpp
+	./log_parse.cpp
 	./factorio.hpp
 	./factorio.cpp
 )

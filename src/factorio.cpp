@@ -3,6 +3,8 @@
 #include <solanaceae/message3/components.hpp>
 #include <solanaceae/contact/components.hpp>
 
+#include "./log_parse.hpp"
+
 Factorio::Factorio(Contact3Registry& cr, RegistryMessageModel& rmm) : _cr(cr), _rmm(rmm) {
 	_rmm.subscribe(this, RegistryMessageModel_Event::message_construct);
 }

@@ -12,6 +12,5 @@ class Factorio : public RegistryMessageModelEventI {
 
 	protected: // rmm
 		bool onEvent(const Message::Events::MessageConstruct& e) override;
-
 };
 
