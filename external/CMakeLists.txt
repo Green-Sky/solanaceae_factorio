@@ -22,8 +22,10 @@ endif()
 
 if (NOT TARGET filewatch)
 	FetchContent_Declare(filewatch
-		GIT_REPOSITORY https://github.com/ThomasMonkman/filewatch.git
-		GIT_TAG master
+		#GIT_REPOSITORY https://github.com/ThomasMonkman/filewatch.git
+		GIT_REPOSITORY https://github.com/justinboswell/filewatch
+		#GIT_TAG master
+		GIT_TAG 2cef7983449579555799065f31d022b86b739d62
 		EXCLUDE_FROM_ALL
 	)
 
