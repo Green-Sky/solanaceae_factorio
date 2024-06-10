@@ -3,10 +3,14 @@
 #include <regex>
 
 std::optional<LPLRes> log_parse_line(std::string_view line) {
+	if (line.empty()) {
+		return std::nullopt;
+	}
+
 	static const std::regex mod_match{".*Factorio-Event-Logger+.*\\[([A-Z ]+)\\] (.+)$"};
 
 	std::cmatch matches;
-	if (!std::regex_match(line.cbegin(), line.cend(), matches, mod_match)) {
+	if (!std::regex_match(line.data(), line.data() + line.size(), matches, mod_match)) {
 		return std::nullopt;
 	}
 
