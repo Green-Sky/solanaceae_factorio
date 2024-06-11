@@ -15,5 +15,13 @@ void FactorioLogParser::onFileEvent(const std::string& path, const filewatch::Ev
 
 	// on create, close open log file and reopen and skip to end
 	// on mod (?), read line, parse
+
+
+	dispatch(
+		FactorioLogParser_Event::join,
+		FactorioLog::Events::Join{
+			"Player"
+		}
+	);
 }
 

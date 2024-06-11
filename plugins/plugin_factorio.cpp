@@ -37,7 +37,7 @@ SOLANA_PLUGIN_EXPORT uint32_t solana_plugin_start(struct SolanaAPI* solana_api) 
 		// static store, could be anywhere tho
 		// construct with fetched dependencies
 		g_flp = std::make_unique<FactorioLogParser>();
-		g_f = std::make_unique<Factorio>(*cr, *rmm);
+		g_f = std::make_unique<Factorio>(*cr, *rmm, *g_flp);
 
 		// register types
 		PLUG_PROVIDE_INSTANCE(FactorioLogParser, plugin_name, g_flp.get());

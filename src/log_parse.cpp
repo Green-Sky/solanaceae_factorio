@@ -7,6 +7,7 @@ std::optional<LPLRes> log_parse_line(std::string_view line) {
 		return std::nullopt;
 	}
 
+	// TODO: make mod name configurable
 	static const std::regex mod_match{".*Factorio-Event-Logger+.*\\[([A-Z ]+)\\] (.+)$"};
 
 	std::cmatch matches;
