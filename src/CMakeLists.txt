@@ -5,6 +5,8 @@ project(solanaceae)
 add_library(solanaceae_factorio
 	./log_parse.hpp
 	./log_parse.cpp
+	./factorio_log_parser.hpp
+	./factorio_log_parser.cpp
 	./factorio.hpp
 	./factorio.cpp
 )

@@ -3,10 +3,12 @@
 #include <entt/entt.hpp>
 #include <entt/fwd.hpp>
 
+#include "factorio_log_parser.hpp"
 #include "factorio.hpp"
 
 #include <iostream>
 
+static std::unique_ptr<FactorioLogParser> g_flp = nullptr;
 static std::unique_ptr<Factorio> g_f = nullptr;
 
 constexpr const char* plugin_name = "Factorio";
@@ -34,9 +36,11 @@ SOLANA_PLUGIN_EXPORT uint32_t solana_plugin_start(struct SolanaAPI* solana_api) 
 
 		// static store, could be anywhere tho
 		// construct with fetched dependencies
+		g_flp = std::make_unique<FactorioLogParser>();
 		g_f = std::make_unique<Factorio>(*cr, *rmm);
 
 		// register types
+		PLUG_PROVIDE_INSTANCE(FactorioLogParser, plugin_name, g_flp.get());
 		PLUG_PROVIDE_INSTANCE(Factorio, plugin_name, g_f.get());
 	} catch (const ResolveException& e) {
 		std::cerr << "PLUGIN " << plugin_name << " " << e.what << "\n";
@@ -50,6 +54,7 @@ SOLANA_PLUGIN_EXPORT void solana_plugin_stop(void) {
 	std::cout << "PLUGIN " << plugin_name << " STOP()\n";
 
 	g_f.reset();
+	g_flp.reset();
 }
 
 SOLANA_PLUGIN_EXPORT float solana_plugin_tick(float) {
