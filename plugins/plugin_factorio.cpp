@@ -3,6 +3,8 @@
 #include <entt/entt.hpp>
 #include <entt/fwd.hpp>
 
+#include <solanaceae/util/config_model.hpp>
+
 #include "factorio_log_parser.hpp"
 #include "factorio.hpp"
 
@@ -31,12 +33,13 @@ SOLANA_PLUGIN_EXPORT uint32_t solana_plugin_start(struct SolanaAPI* solana_api) 
 	}
 
 	try {
+		auto* conf = PLUG_RESOLVE_INSTANCE(ConfigModelI);
 		auto* cr = PLUG_RESOLVE_INSTANCE_VERSIONED(Contact3Registry, "1");
 		auto* rmm = PLUG_RESOLVE_INSTANCE(RegistryMessageModel);
 
 		// static store, could be anywhere tho
 		// construct with fetched dependencies
-		g_flp = std::make_unique<FactorioLogParser>();
+		g_flp = std::make_unique<FactorioLogParser>(*conf);
 		g_f = std::make_unique<Factorio>(*cr, *rmm, *g_flp);
 
 		// register types
@@ -57,9 +60,8 @@ SOLANA_PLUGIN_EXPORT void solana_plugin_stop(void) {
 	g_flp.reset();
 }
 
-SOLANA_PLUGIN_EXPORT float solana_plugin_tick(float) {
-	//return g_rpbot->tick(delta);
-	return 1000.f;
+SOLANA_PLUGIN_EXPORT float solana_plugin_tick(float delta) {
+	return g_flp->tick(delta);
 }
 
 } // extern C

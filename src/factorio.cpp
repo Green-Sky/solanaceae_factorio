@@ -29,34 +29,42 @@ bool Factorio::onEvent(const Message::Events::MessageConstruct& e) {
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Join& e) {
+	std::cout << "F: event join " << e.player_name << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Leave& e) {
+	std::cout << "F: event leave " << e.player_name << " " << e.reason << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Chat& e) {
+	std::cout << "F: event chat " << e.player_name << ": " << e.message << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Died& e) {
+	std::cout << "F: event died " << e.player_name << ": " << e.reason << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Evolution& e) {
+	std::cout << "F: event evolution " << e.evo << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchStarted& e) {
+	std::cout << "F: event research started " << e.name << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchFinished& e) {
+	std::cout << "F: event research finished " << e.name << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchCancelled& e) {
+	std::cout << "F: event research cancelled " << e.name << "\n";
 	return false;
 }
 

@@ -6,6 +6,12 @@
 
 #include <string>
 #include <string_view>
+#include <mutex>
+#include <queue>
+#include <fstream>
+
+// fwd
+struct ConfigModelI;
 
 namespace FactorioLog::Events {
 
@@ -77,16 +83,29 @@ struct FactorioLogParserEventI {
 using FactorioLogParserEventProviderI = EventProviderI<FactorioLogParserEventI>;
 
 class FactorioLogParser : public FactorioLogParserEventProviderI {
+	std::string _log_file_path;
 	filewatch::FileWatch<std::string> _fw;
+	std::ifstream _log_file;
+
+	struct EventEntry {
+		std::string event;
+		std::string params;
+	};
+	std::queue<EventEntry> _event_queue;
+	std::mutex _event_queue_mutex;
 
 	public:
-		FactorioLogParser(void);
+		FactorioLogParser(ConfigModelI& conf);
 		virtual ~FactorioLogParser(void);
+
+		float tick(float delta);
 
 	protected:
 		void onFileEvent(const std::string& path, const filewatch::Event change_type);
+		void resetLogFile(void);
 
 	protected:
+		void queueRaw(std::string_view event, std::string_view params);
 		void dispatchRaw(std::string_view event, std::string_view params);
 
 		void throwJoin(std::string_view params);

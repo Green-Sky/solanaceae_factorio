@@ -1,28 +1,74 @@
 #include "./factorio_log_parser.hpp"
 
+#include <solanaceae/util/config_model.hpp>
+
 #include "./log_parse.hpp"
 
-FactorioLogParser::FactorioLogParser(void) :
-	_fw("test.txt", [this](const auto& path, const auto event){ this->onFileEvent(path, event);})
+FactorioLogParser::FactorioLogParser(ConfigModelI& conf) :
+	_log_file_path(conf.get_string("FactorioLogParser", "log_file_path").value_or("factorio-current.log")),
+	_fw(_log_file_path, [this](const auto& path, const auto event){ this->onFileEvent(path, event);})
 {
+	resetLogFile();
 }
 
 FactorioLogParser::~FactorioLogParser(void) {
 }
 
-void FactorioLogParser::onFileEvent(const std::string& path, const filewatch::Event change_type) {
-	std::cout << "file even " << filewatch::event_to_string(change_type) << " on '" << path << "'\n";
-
-	// on create, close open log file and reopen and skip to end
-	// on mod (?), read line, parse
-
-
-	std::string line;
-
-	const auto parse_res = log_parse_line(line);
-	if (parse_res.has_value()) {
-		dispatchRaw(parse_res.value().event, parse_res.value().params);
+float FactorioLogParser::tick(float) {
+	std::lock_guard lg{_event_queue_mutex};
+	while (!_event_queue.empty()) {
+		dispatchRaw(_event_queue.front().event, _event_queue.front().params);
+		_event_queue.pop();
 	}
+
+	return 10.f;
+}
+
+void FactorioLogParser::onFileEvent(const std::string& path, const filewatch::Event change_type) {
+	// compare path?
+
+	if (change_type == filewatch::Event::added) {
+		// on create, close open log file and reopen and skip to end
+		resetLogFile();
+	} else if (change_type == filewatch::Event::modified) {
+		// on mod, read lines and parse
+		if (!_log_file.is_open()) {
+			std::cerr << "FLP: modified file not open!\n";
+			//resetLogFile();
+		} else {
+			std::string line;
+			while (std::getline(_log_file, line).good()) {
+				if (line.empty()) {
+					std::cerr << "FLP error: getline empty??\n";
+					continue;
+				}
+
+				const auto parse_res = log_parse_line(line);
+				if (parse_res.has_value()) {
+					queueRaw(parse_res.value().event, parse_res.value().params);
+				}
+			}
+			_log_file.clear(); // reset eof and fail bits
+		}
+	}
+}
+
+void FactorioLogParser::resetLogFile(void) {
+	std::cerr << "FLP: resetting log file\n";
+	if (_log_file.is_open()) {
+		_log_file.close();
+		_log_file.clear();
+	}
+	_log_file.open(_log_file_path, std::ios::in | std::ios::binary | std::ios::ate);
+	if (!_log_file.is_open()) {
+		std::cerr << "FLP error: failed opening file\n";
+	}
+}
+
+void FactorioLogParser::queueRaw(std::string_view event, std::string_view params) {
+	std::lock_guard lg{_event_queue_mutex};
+	_event_queue.push(EventEntry{static_cast<std::string>(event), static_cast<std::string>(params)});
+	//std::cerr << "enqued '" << event << "': '" << params << "'\n";
 }
 
 void FactorioLogParser::dispatchRaw(std::string_view event, std::string_view params) {
