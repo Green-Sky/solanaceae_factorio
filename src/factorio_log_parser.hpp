@@ -5,42 +5,44 @@
 #include <FileWatch.hpp>
 
 #include <string>
+#include <string_view>
 
 namespace FactorioLog::Events {
 
-	// TODO: string views?
 	struct Join {
-		std::string player_name;
+		std::string_view player_name;
 	};
 
 	struct Leave {
-		std::string player_name;
+		std::string_view player_name;
+		std::string_view reason;
 	};
 
 	struct Chat {
-		std::string player_name;
-		std::string message;
+		std::string_view player_name;
+		std::string_view message;
 	};
 
 	struct Died {
-		std::string player_name;
+		std::string_view player_name;
+		std::string_view reason;
 	};
 
 	struct Evolution {
 		// ?
-		std::string evo;
+		std::string_view evo;
 	};
 
 	struct ResearchStarted {
-		std::string name;
+		std::string_view name;
 	};
 
 	struct ResearchFinished {
-		std::string name;
+		std::string_view name;
 	};
 
 	struct ResearchCancelled {
-		std::string name;
+		std::string_view name;
 	};
 
 } // FactorioLog::Events
@@ -83,5 +85,17 @@ class FactorioLogParser : public FactorioLogParserEventProviderI {
 
 	protected:
 		void onFileEvent(const std::string& path, const filewatch::Event change_type);
+
+	protected:
+		void dispatchRaw(std::string_view event, std::string_view params);
+
+		void throwJoin(std::string_view params);
+		void throwLeave(std::string_view params);
+		void throwChat(std::string_view params);
+		void throwDied(std::string_view params);
+		void throwEvolution(std::string_view params);
+		void throwResearchStarted(std::string_view params);
+		void throwResearchFinished(std::string_view params);
+		void throwResearchCancelled(std::string_view params);
 };
 

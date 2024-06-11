@@ -5,7 +5,7 @@
 
 struct LPLRes {
 	std::string_view event;
-	std::string_view info;
+	std::string_view params;
 };
 
 std::optional<LPLRes> log_parse_line(std::string_view line);
