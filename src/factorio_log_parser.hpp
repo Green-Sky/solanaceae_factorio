@@ -94,6 +94,8 @@ class FactorioLogParser : public FactorioLogParserEventProviderI {
 	std::queue<EventEntry> _event_queue;
 	std::mutex _event_queue_mutex;
 
+	float _manual_timer {1.f};
+
 	public:
 		FactorioLogParser(ConfigModelI& conf);
 		virtual ~FactorioLogParser(void);
@@ -103,6 +105,8 @@ class FactorioLogParser : public FactorioLogParserEventProviderI {
 	protected:
 		void onFileEvent(const std::string& path, const filewatch::Event change_type);
 		void resetLogFile(void);
+		// assumes file is open!
+		void readLines(void);
 
 	protected:
 		void queueRaw(std::string_view event, std::string_view params);

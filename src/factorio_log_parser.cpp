@@ -14,7 +14,17 @@ FactorioLogParser::FactorioLogParser(ConfigModelI& conf) :
 FactorioLogParser::~FactorioLogParser(void) {
 }
 
-float FactorioLogParser::tick(float) {
+float FactorioLogParser::tick(float delta) {
+	{ // making sure, incase mod events dont work
+		_manual_timer += delta;
+		if (_manual_timer >= 10.f) {
+			_manual_timer = 0.f;
+			if (_log_file.is_open()) {
+				readLines();
+			}
+		}
+	}
+
 	std::lock_guard lg{_event_queue_mutex};
 	while (!_event_queue.empty()) {
 		dispatchRaw(_event_queue.front().event, _event_queue.front().params);
@@ -36,19 +46,7 @@ void FactorioLogParser::onFileEvent(const std::string& path, const filewatch::Ev
 			std::cerr << "FLP: modified file not open!\n";
 			//resetLogFile();
 		} else {
-			std::string line;
-			while (std::getline(_log_file, line).good()) {
-				if (line.empty()) {
-					std::cerr << "FLP error: getline empty??\n";
-					continue;
-				}
-
-				const auto parse_res = log_parse_line(line);
-				if (parse_res.has_value()) {
-					queueRaw(parse_res.value().event, parse_res.value().params);
-				}
-			}
-			_log_file.clear(); // reset eof and fail bits
+			readLines();
 		}
 	}
 }
@@ -63,6 +61,22 @@ void FactorioLogParser::resetLogFile(void) {
 	if (!_log_file.is_open()) {
 		std::cerr << "FLP error: failed opening file\n";
 	}
+}
+
+void FactorioLogParser::readLines(void) {
+	std::string line;
+	while (std::getline(_log_file, line).good()) {
+		if (line.empty()) {
+			std::cerr << "FLP error: getline empty??\n";
+			continue;
+		}
+
+		const auto parse_res = log_parse_line(line);
+		if (parse_res.has_value()) {
+			queueRaw(parse_res.value().event, parse_res.value().params);
+		}
+	}
+	_log_file.clear(); // reset eof and fail bits
 }
 
 void FactorioLogParser::queueRaw(std::string_view event, std::string_view params) {
