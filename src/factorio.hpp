@@ -16,6 +16,8 @@ class Factorio : public RegistryMessageModelEventI, public FactorioLogParserEven
 
 	std::vector<Contact3Handle> _linked_contacts;
 
+	void sendToLinked(const std::string& message);
+
 	public:
 		Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp);
 		virtual ~Factorio(void);

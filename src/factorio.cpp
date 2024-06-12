@@ -6,6 +6,16 @@
 #include <solanaceae/message3/components.hpp>
 #include <solanaceae/contact/components.hpp>
 
+void Factorio::sendToLinked(const std::string& message) {
+	for (const auto& h : _linked_contacts) {
+		if (!static_cast<bool>(h)) {
+			continue;
+		}
+
+		_rmm.sendText(h, message);
+	}
+}
+
 Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp) :
 	_cr(cr),
 	_rmm(rmm),
@@ -57,21 +67,48 @@ bool Factorio::onEvent(const Message::Events::MessageConstruct& e) {
 
 bool Factorio::onEvent(const FactorioLog::Events::Join& e) {
 	std::cout << "Factorio: event join " << e.player_name << "\n";
+
+	std::string message{e.player_name};
+	message += " joined";
+
+	sendToLinked(message);
+
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Leave& e) {
 	std::cout << "Factorio: event leave " << e.player_name << " " << e.reason << "\n";
+
+	std::string message{e.player_name};
+	message += " left";
+
+	sendToLinked(message);
+
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Chat& e) {
 	std::cout << "Factorio: event chat " << e.player_name << ": " << e.message << "\n";
+
+	std::string message{"<"};
+	message += e.player_name;
+	message += ">: ";
+	message += e.message;
+
+	sendToLinked(message);
+
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Died& e) {
 	std::cout << "Factorio: event died " << e.player_name << ": " << e.reason << "\n";
+
+	std::string message{e.player_name};
+	message += " died from ";
+	message += e.reason;
+
+	sendToLinked(message);
+
 	return false;
 }
 
@@ -87,6 +124,13 @@ bool Factorio::onEvent(const FactorioLog::Events::ResearchStarted& e) {
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchFinished& e) {
 	std::cout << "Factorio: event research finished " << e.name << "\n";
+
+	std::string message{"Research "};
+	message += e.name;
+	message += " finished!";
+
+	sendToLinked(message);
+
 	return false;
 }
 
