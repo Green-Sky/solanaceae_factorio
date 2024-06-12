@@ -4,13 +4,20 @@
 
 #include "./factorio_log_parser.hpp"
 
+#include <vector>
+
+// fwd
+struct ConfigModelI;
+
 class Factorio : public RegistryMessageModelEventI, public FactorioLogParserEventI {
 	Contact3Registry& _cr;
 	RegistryMessageModel& _rmm;
 	FactorioLogParser& _flp;
 
+	std::vector<Contact3Handle> _linked_contacts;
+
 	public:
-		Factorio(Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp);
+		Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp);
 		virtual ~Factorio(void);
 
 	protected: // rmm

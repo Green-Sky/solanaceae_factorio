@@ -1,14 +1,41 @@
 #include "./factorio.hpp"
-#include "factorio_log_parser.hpp"
+
+#include <solanaceae/util/config_model.hpp>
+#include <solanaceae/util/utils.hpp>
 
 #include <solanaceae/message3/components.hpp>
 #include <solanaceae/contact/components.hpp>
 
-Factorio::Factorio(Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp) :
+Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp) :
 	_cr(cr),
 	_rmm(rmm),
 	_flp(flp)
 {
+	// config
+	for (const auto&& [contact_id, enabled] : conf.entries_bool("Factorio", "link_to_contact")) {
+		//std::cout << "config id:" << contact_id << " e:" << enabled << "\n";
+
+		const auto id_vec = hex2bin(contact_id);
+
+		// search
+		Contact3Handle h;
+		auto view = _cr.view<Contact::Components::ID>();
+		for (const auto c : view) {
+			if (view.get<Contact::Components::ID>(c).data == id_vec) {
+				h = Contact3Handle{_cr, c};
+				std::cout << "Factorio: found contact for link.\n";
+				break;
+			}
+		}
+		if (!static_cast<bool>(h)) {
+			// not found, create thin contact with just id
+			h = {_cr, _cr.create()};
+			h.emplace<Contact::Components::ID>(id_vec);
+			std::cout << "Factorio: contact not found, created thin contact from ID. (" << contact_id << ")\n";
+		}
+		_linked_contacts.push_back(h);
+	}
+
 	_rmm.subscribe(this, RegistryMessageModel_Event::message_construct);
 
 	_flp.subscribe(this, FactorioLogParser_Event::join);
@@ -29,42 +56,42 @@ bool Factorio::onEvent(const Message::Events::MessageConstruct& e) {
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Join& e) {
-	std::cout << "F: event join " << e.player_name << "\n";
+	std::cout << "Factorio: event join " << e.player_name << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Leave& e) {
-	std::cout << "F: event leave " << e.player_name << " " << e.reason << "\n";
+	std::cout << "Factorio: event leave " << e.player_name << " " << e.reason << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Chat& e) {
-	std::cout << "F: event chat " << e.player_name << ": " << e.message << "\n";
+	std::cout << "Factorio: event chat " << e.player_name << ": " << e.message << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Died& e) {
-	std::cout << "F: event died " << e.player_name << ": " << e.reason << "\n";
+	std::cout << "Factorio: event died " << e.player_name << ": " << e.reason << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::Evolution& e) {
-	std::cout << "F: event evolution " << e.evo << "\n";
+	std::cout << "Factorio: event evolution " << e.evo << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchStarted& e) {
-	std::cout << "F: event research started " << e.name << "\n";
+	std::cout << "Factorio: event research started " << e.name << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchFinished& e) {
-	std::cout << "F: event research finished " << e.name << "\n";
+	std::cout << "Factorio: event research finished " << e.name << "\n";
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchCancelled& e) {
-	std::cout << "F: event research cancelled " << e.name << "\n";
+	std::cout << "Factorio: event research cancelled " << e.name << "\n";
 	return false;
 }
 
