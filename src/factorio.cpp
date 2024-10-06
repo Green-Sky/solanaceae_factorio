@@ -16,7 +16,7 @@ void Factorio::sendToLinked(const std::string& message) {
 	}
 }
 
-Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp) :
+Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModelI& rmm, FactorioLogParser& flp) :
 	_cr(cr),
 	_rmm(rmm),
 	_flp(flp)

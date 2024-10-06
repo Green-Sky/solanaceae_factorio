@@ -35,7 +35,7 @@ SOLANA_PLUGIN_EXPORT uint32_t solana_plugin_start(struct SolanaAPI* solana_api) 
 	try {
 		auto* conf = PLUG_RESOLVE_INSTANCE(ConfigModelI);
 		auto* cr = PLUG_RESOLVE_INSTANCE_VERSIONED(Contact3Registry, "1");
-		auto* rmm = PLUG_RESOLVE_INSTANCE(RegistryMessageModel);
+		auto* rmm = PLUG_RESOLVE_INSTANCE(RegistryMessageModelI);
 
 		// static store, could be anywhere tho
 		// construct with fetched dependencies

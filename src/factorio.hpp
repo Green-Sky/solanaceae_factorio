@@ -11,7 +11,7 @@ struct ConfigModelI;
 
 class Factorio : public RegistryMessageModelEventI, public FactorioLogParserEventI {
 	Contact3Registry& _cr;
-	RegistryMessageModel& _rmm;
+	RegistryMessageModelI& _rmm;
 	FactorioLogParser& _flp;
 
 	std::vector<Contact3Handle> _linked_contacts;
@@ -19,7 +19,7 @@ class Factorio : public RegistryMessageModelEventI, public FactorioLogParserEven
 	void sendToLinked(const std::string& message);
 
 	public:
-		Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModel& rmm, FactorioLogParser& flp);
+		Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModelI& rmm, FactorioLogParser& flp);
 		virtual ~Factorio(void);
 
 	protected: // rmm
