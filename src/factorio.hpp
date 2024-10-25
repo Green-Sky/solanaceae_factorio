@@ -12,7 +12,9 @@ struct ConfigModelI;
 class Factorio : public RegistryMessageModelEventI, public FactorioLogParserEventI {
 	Contact3Registry& _cr;
 	RegistryMessageModelI& _rmm;
+	RegistryMessageModelI::SubscriptionReference _rmm_sr;
 	FactorioLogParser& _flp;
+	FactorioLogParser::SubscriptionReference _flp_sr;
 
 	std::vector<Contact3Handle> _linked_contacts;
 

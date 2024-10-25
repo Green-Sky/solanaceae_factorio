@@ -19,7 +19,9 @@ void Factorio::sendToLinked(const std::string& message) {
 Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModelI& rmm, FactorioLogParser& flp) :
 	_cr(cr),
 	_rmm(rmm),
-	_flp(flp)
+	_rmm_sr(_rmm.newSubRef(this)),
+	_flp(flp),
+	_flp_sr(_flp.newSubRef(this))
 {
 	// config
 	for (const auto&& [contact_id, enabled] : conf.entries_bool("Factorio", "link_to_contact")) {
@@ -46,16 +48,18 @@ Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageMode
 		_linked_contacts.push_back(h);
 	}
 
-	_rmm.subscribe(this, RegistryMessageModel_Event::message_construct);
+	_rmm_sr.subscribe(RegistryMessageModel_Event::message_construct);
 
-	_flp.subscribe(this, FactorioLogParser_Event::join);
-	_flp.subscribe(this, FactorioLogParser_Event::leave);
-	_flp.subscribe(this, FactorioLogParser_Event::chat);
-	_flp.subscribe(this, FactorioLogParser_Event::died);
-	_flp.subscribe(this, FactorioLogParser_Event::evolution);
-	_flp.subscribe(this, FactorioLogParser_Event::research_started);
-	_flp.subscribe(this, FactorioLogParser_Event::research_finished);
-	_flp.subscribe(this, FactorioLogParser_Event::research_cancelled);
+	_flp_sr
+		.subscribe(FactorioLogParser_Event::join)
+		.subscribe(FactorioLogParser_Event::leave)
+		.subscribe(FactorioLogParser_Event::chat)
+		.subscribe(FactorioLogParser_Event::died)
+		.subscribe(FactorioLogParser_Event::evolution)
+		.subscribe(FactorioLogParser_Event::research_started)
+		.subscribe(FactorioLogParser_Event::research_finished)
+		.subscribe(FactorioLogParser_Event::research_cancelled)
+	;
 }
 
 Factorio::~Factorio(void) {
