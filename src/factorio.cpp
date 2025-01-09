@@ -94,6 +94,12 @@ bool Factorio::onEvent(const FactorioLog::Events::Leave& e) {
 bool Factorio::onEvent(const FactorioLog::Events::Chat& e) {
 	std::cout << "Factorio: event chat " << e.player_name << ": " << e.message << "\n";
 
+	// ignore pings
+	constexpr std::string_view ping_prefix{"[gps="};
+	if (e.message.size() > ping_prefix.size() && e.message.substr(0, ping_prefix.size()) == ping_prefix) {
+		return false;
+	}
+
 	std::string message{"<"};
 	message += e.player_name;
 	message += ">: ";
