@@ -17,6 +17,7 @@ void Factorio::sendToLinked(const std::string& message) {
 }
 
 Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModelI& rmm, FactorioLogParser& flp) :
+	_conf(conf),
 	_cr(cr),
 	_rmm(rmm),
 	_rmm_sr(_rmm.newSubRef(this)),
@@ -72,6 +73,10 @@ bool Factorio::onEvent(const Message::Events::MessageConstruct& e) {
 bool Factorio::onEvent(const FactorioLog::Events::Join& e) {
 	std::cout << "Factorio: event join " << e.player_name << "\n";
 
+	if (!_conf.get_bool("Factorio", "forward", "join").value_or(true)) {
+		return false;
+	}
+
 	std::string message{e.player_name};
 	message += " joined";
 
@@ -83,6 +88,10 @@ bool Factorio::onEvent(const FactorioLog::Events::Join& e) {
 bool Factorio::onEvent(const FactorioLog::Events::Leave& e) {
 	std::cout << "Factorio: event leave " << e.player_name << " " << e.reason << "\n";
 
+	if (!_conf.get_bool("Factorio", "forward", "leave").value_or(true)) {
+		return false;
+	}
+
 	std::string message{e.player_name};
 	message += " left";
 
@@ -93,6 +102,10 @@ bool Factorio::onEvent(const FactorioLog::Events::Leave& e) {
 
 bool Factorio::onEvent(const FactorioLog::Events::Chat& e) {
 	std::cout << "Factorio: event chat " << e.player_name << ": " << e.message << "\n";
+
+	if (!_conf.get_bool("Factorio", "forward", "chat").value_or(true)) {
+		return false;
+	}
 
 	// ignore pings
 	constexpr std::string_view ping_prefix{"[gps="};
@@ -113,6 +126,10 @@ bool Factorio::onEvent(const FactorioLog::Events::Chat& e) {
 bool Factorio::onEvent(const FactorioLog::Events::Died& e) {
 	std::cout << "Factorio: event died " << e.player_name << ": " << e.reason << "\n";
 
+	if (!_conf.get_bool("Factorio", "forward", "died").value_or(true)) {
+		return false;
+	}
+
 	std::string message{e.player_name};
 	message += " died from ";
 	message += e.reason;
@@ -124,16 +141,30 @@ bool Factorio::onEvent(const FactorioLog::Events::Died& e) {
 
 bool Factorio::onEvent(const FactorioLog::Events::Evolution& e) {
 	std::cout << "Factorio: event evolution " << e.evo << "\n";
+
+	//if (!_conf.get_bool("Factorio", "forward", "evolution").value_or(true)) {
+	//    return false;
+	//}
+
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchStarted& e) {
 	std::cout << "Factorio: event research started " << e.name << "\n";
+
+	//if (!_conf.get_bool("Factorio", "forward", "research_started").value_or(true)) {
+	//    return false;
+	//}
+
 	return false;
 }
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchFinished& e) {
 	std::cout << "Factorio: event research finished " << e.name << "\n";
+
+	if (!_conf.get_bool("Factorio", "forward", "research_finished").value_or(true)) {
+		return false;
+	}
 
 	std::string message{"Research "};
 	message += e.name;
@@ -146,6 +177,11 @@ bool Factorio::onEvent(const FactorioLog::Events::ResearchFinished& e) {
 
 bool Factorio::onEvent(const FactorioLog::Events::ResearchCancelled& e) {
 	std::cout << "Factorio: event research cancelled " << e.name << "\n";
+
+	//if (!_conf.get_bool("Factorio", "forward", "research_cancelled").value_or(true)) {
+	//    return false;
+	//}
+
 	return false;
 }
 

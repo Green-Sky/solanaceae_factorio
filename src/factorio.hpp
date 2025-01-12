@@ -10,6 +10,7 @@
 struct ConfigModelI;
 
 class Factorio : public RegistryMessageModelEventI, public FactorioLogParserEventI {
+	ConfigModelI& _conf;
 	Contact3Registry& _cr;
 	RegistryMessageModelI& _rmm;
 	RegistryMessageModelI::SubscriptionReference _rmm_sr;
