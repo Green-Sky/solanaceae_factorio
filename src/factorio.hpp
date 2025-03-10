@@ -1,5 +1,6 @@
 #pragma once
 
+#include <solanaceae/contact/fwd.hpp>
 #include <solanaceae/message3/registry_message_model.hpp>
 
 #include "./factorio_log_parser.hpp"
@@ -11,18 +12,18 @@ struct ConfigModelI;
 
 class Factorio : public RegistryMessageModelEventI, public FactorioLogParserEventI {
 	ConfigModelI& _conf;
-	Contact3Registry& _cr;
+	ContactStore4I& _cs;
 	RegistryMessageModelI& _rmm;
 	RegistryMessageModelI::SubscriptionReference _rmm_sr;
 	FactorioLogParser& _flp;
 	FactorioLogParser::SubscriptionReference _flp_sr;
 
-	std::vector<Contact3Handle> _linked_contacts;
+	std::vector<ContactHandle4> _linked_contacts;
 
 	void sendToLinked(const std::string& message);
 
 	public:
-		Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModelI& rmm, FactorioLogParser& flp);
+		Factorio(ConfigModelI& conf, ContactStore4I& cs, RegistryMessageModelI& rmm, FactorioLogParser& flp);
 		virtual ~Factorio(void);
 
 	protected: // rmm

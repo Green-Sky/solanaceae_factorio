@@ -3,6 +3,8 @@
 #include <solanaceae/util/config_model.hpp>
 #include <solanaceae/util/utils.hpp>
 
+#include <solanaceae/contact/contact_store_i.hpp>
+
 #include <solanaceae/message3/components.hpp>
 #include <solanaceae/contact/components.hpp>
 
@@ -16,9 +18,9 @@ void Factorio::sendToLinked(const std::string& message) {
 	}
 }
 
-Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageModelI& rmm, FactorioLogParser& flp) :
+Factorio::Factorio(ConfigModelI& conf, ContactStore4I& cs, RegistryMessageModelI& rmm, FactorioLogParser& flp) :
 	_conf(conf),
-	_cr(cr),
+	_cs(cs),
 	_rmm(rmm),
 	_rmm_sr(_rmm.newSubRef(this)),
 	_flp(flp),
@@ -31,19 +33,12 @@ Factorio::Factorio(ConfigModelI& conf, Contact3Registry& cr, RegistryMessageMode
 		const auto id_vec = hex2bin(contact_id);
 
 		// search
-		Contact3Handle h;
-		auto view = _cr.view<Contact::Components::ID>();
-		for (const auto c : view) {
-			if (view.get<Contact::Components::ID>(c).data == id_vec) {
-				h = Contact3Handle{_cr, c};
-				std::cout << "Factorio: found contact for link.\n";
-				break;
-			}
-		}
+		ContactHandle4 h = _cs.getOneContactByID(ByteSpan{id_vec});
 		if (!static_cast<bool>(h)) {
 			// not found, create thin contact with just id
-			h = {_cr, _cr.create()};
+			h = _cs.contactHandle(_cs.registry().create());
 			h.emplace<Contact::Components::ID>(id_vec);
+			_cs.throwEventConstruct(h);
 			std::cout << "Factorio: contact not found, created thin contact from ID. (" << contact_id << ")\n";
 		}
 		_linked_contacts.push_back(h);
